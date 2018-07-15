@@ -3,7 +3,7 @@
 % a:衰减率
 % Markov_length长度
 % 
-function [ Solve_best,Cost_best ] = TSP_SA_Func(coordinates,t0,a,Markov_length)
+function [ Solve_best,Cost_best ] = TSP_SA_Func(dist_martix,left_index,right_index)
 % 测试数据，以后做封装函数处理
 %数据格式如下：
 % coordinates = [
@@ -70,35 +70,29 @@ function [ Solve_best,Cost_best ] = TSP_SA_Func(coordinates,t0,a,Markov_length)
 %初始温度
 
 
-if nargin==1
-    a=0.99;
-    t0=97;
-    Markov_length=10000;
-elseif nargin==2
-    a=0.99;
-    Markov_length=10000;
-elseif nargin==3
-    Markov_length=10000;
-else
-end
+
+a=0.99;
+t0=97;
+Markov_length=10000;
+
 
 tf=3;t=t0;
 
 %将数据处理的只剩坐标
-coordinates(:,1)=[];
+%coordinates(:,1)=[];
 
 %计算城市点的个数，size第一个参数返回rows
-count=size(coordinates,1);
+count=size(dist_martix,1);
 
 %计算距离矩阵
-dist_temp_x1=coordinates(:,1)*ones(1,count);
-dist_temp_x2=dist_temp_x1';
-
-dist_temp_y1=coordinates(:,2)*ones(1,count);
-dist_temp_y2=dist_temp_y1';
+% dist_temp_x1=coordinates(:,1)*ones(1,count);
+% dist_temp_x2=dist_temp_x1';
+% 
+% dist_temp_y1=coordinates(:,2)*ones(1,count);
+% dist_temp_y2=dist_temp_y1';
 
 %生成距离矩阵
-dist_martix=sqrt((dist_temp_x1-dist_temp_x2).^2+(dist_temp_y1-dist_temp_y2).^2);
+% dist_martix=sqrt((dist_temp_x1-dist_temp_x2).^2+(dist_temp_y1-dist_temp_y2).^2);
 
 %初始解
 solve0=1:count;
@@ -114,6 +108,7 @@ Solve_best=solve0;
 
 %扰动参数
 rand_rao_dong=0.5;
+
 
 %开始模拟退火过程
 while t>=tf
@@ -155,6 +150,15 @@ while t>=tf
            
         end
         
+        %换完之后把坐标换回来
+        index=find(Solve_new==right_index);
+        Solve_new(index)=Solve_new(end);
+        Solve_new(end)=right_index;
+        
+        index=find(Solve_new==left_index);
+        Solve_new(index)=Solve_new(1);
+        Solve_new(1)=left_index;
+        
         %计算Cost
         Cost_new=0;
         for i=1:(count-1)
@@ -189,6 +193,7 @@ while t>=tf
     %温度衰减
     t=t.*a;
 end
+
 
 end
 
